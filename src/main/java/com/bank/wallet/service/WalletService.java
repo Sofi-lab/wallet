@@ -24,12 +24,12 @@ public class WalletService {
     public void changeAmount(ChangeWalletRequest request){
         Wallet wallet = repository.findById(request.getId()).orElseThrow(() ->
                 new NotFoundException("Такого счета нет " + request.getId()));
-        if( request.getOperationType().equals(OperationType.DEPOSIT )) {
+        if( OperationType.DEPOSIT.equals( request.getOperationType() )) {
             BigDecimal new_amount = wallet.getAmount().add(request.getAmount());
             wallet.setAmount(new_amount);
             repository.save(wallet);
-        } else if( request.getOperationType().equals(OperationType.WITHDRAW )) {
-            if (request.getAmount().compareTo(wallet.getAmount()) == 1) {
+        } else if( OperationType.WITHDRAW.equals( request.getOperationType() )) {
+            if ( request.getAmount().compareTo(wallet.getAmount()) == 1 ) {
                 throw new TooBigAmount("Недостаточно средств на счете, баланс: " + wallet.getAmount());
             } else {
                 BigDecimal new_amount = wallet.getAmount().subtract(request.getAmount());
@@ -37,7 +37,7 @@ public class WalletService {
                 repository.save(wallet);
             }
         } else {
-            throw new UnknownRequestException("Неизвестный тип операции " + request.getOperationType());
+            throw new UnknownRequestException("Неизвестный тип операции" + request.getOperationType());
         }
     }
 
