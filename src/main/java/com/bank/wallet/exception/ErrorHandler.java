@@ -1,7 +1,7 @@
 package com.bank.wallet.exception;
 
-import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,8 +41,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNotValidException(MethodArgumentNotValidException exception) {
-        Map<String, String> result = Map.of("Not valid request", exception.getMessage());
+    public Map<String, MethodParameter> handleNotValidException(MethodArgumentNotValidException exception) {
+        Map<String, MethodParameter> result = Map.of("Not valid request ",  exception.getParameter());
         log.warn(String.valueOf(result), exception, exception.getMessage());
         return result;
     }

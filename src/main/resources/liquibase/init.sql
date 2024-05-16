@@ -4,7 +4,7 @@
 DROP TABLE IF EXISTS wallets;
 
 CREATE TABLE wallets (
-id uuid PRIMARY KEY,
+id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
 amount numeric
 );
 
