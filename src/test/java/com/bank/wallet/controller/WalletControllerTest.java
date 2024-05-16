@@ -8,8 +8,7 @@ import com.bank.wallet.exception.UnknownRequestException;
 import com.bank.wallet.model.Wallet;
 import com.bank.wallet.service.WalletService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -56,7 +55,8 @@ class WalletControllerTest {
 
         when(service.changeAmount(any())).thenReturn(wallet);
 
-        mockMvc.perform(post("/api/v1/wallet")
+        mockMvc.perform(
+                post("/api/v1/wallet")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(walletRequest)))
                 .andExpect(status().isOk())
@@ -73,9 +73,10 @@ class WalletControllerTest {
 
         when(service.changeAmount(any())).thenReturn(wallet);
 
-        mockMvc.perform(post("/api/v1/wallet")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(walletRequest)))
+        mockMvc.perform(
+                post("/api/v1/wallet")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(walletRequest)))
                 .andExpect(status().isOk())
                 .andExpect( jsonPath("$.id").value(id.toString()))
                 .andExpect( jsonPath("$.amount").value(4000.00));
@@ -88,7 +89,8 @@ class WalletControllerTest {
         ChangeWalletRequest walletRequest = new ChangeWalletRequest(UUID.randomUUID(), BigDecimal.valueOf(5000.00), OperationType.WITHDRAW);
         when(service.changeAmount(any())).thenThrow(new NotFoundException("Такого счета нет " + walletRequest.getId()));
 
-        mockMvc.perform(post("/api/v1/wallet")
+        mockMvc.perform(
+                post("/api/v1/wallet")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(walletRequest)))
                 .andExpect(status().isNotFound())
@@ -105,7 +107,8 @@ class WalletControllerTest {
 
         when(service.changeAmount(any())).thenThrow(new TooBigAmount("Недостаточно средств на счете, баланс: " + wallet.getAmount()));
 
-        mockMvc.perform(post("/api/v1/wallet")
+        mockMvc.perform(
+                post("/api/v1/wallet")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(walletRequest)))
                 .andExpect(status().isNotAcceptable())
@@ -114,21 +117,77 @@ class WalletControllerTest {
 
 
     @Test
-    void changeAmountWithdrawUnknownRequest() throws Exception {
+    void changeAmountWithdrawUnknownRequest_OperationTypeNull() throws Exception {
         UUID id = UUID.randomUUID();
         ChangeWalletRequest walletRequest = new ChangeWalletRequest(id, BigDecimal.valueOf(50000.00), null);
 
-        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Неизвестный тип операции " + walletRequest.getOperationType()));
+        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" + walletRequest.getAmount()));
 
-        mockMvc.perform(post("/api/v1/wallet")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(walletRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("Неизвестный тип операции " + walletRequest.getOperationType(), result.getResolvedException().getMessage()));
+        mockMvc.perform(
+                post("/api/v1/wallet")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(walletRequest)))
+                .andExpect(status().isBadRequest());
     }
 
 
     @Test
-    void getWallet() {
+    void changeAmountWithdrawUnknownRequest_AmountNull() throws Exception {
+        UUID id = UUID.randomUUID();
+        ChangeWalletRequest walletRequest = new ChangeWalletRequest(id, null, OperationType.WITHDRAW);
+
+        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" + walletRequest.getAmount()));
+
+        mockMvc.perform(
+                post("/api/v1/wallet")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(walletRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void changeAmountWithdrawUnknownRequest_IdNull() throws Exception {
+        ChangeWalletRequest walletRequest = new ChangeWalletRequest(null, BigDecimal.valueOf(60000.00), OperationType.WITHDRAW);
+
+        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" + walletRequest.getAmount()));
+
+        mockMvc.perform(
+                post("/api/v1/wallet")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(walletRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void getWallet_Ok() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        Wallet wallet = new Wallet(id, BigDecimal.valueOf(4000.00));
+
+        when(service.getWallet(any())).thenReturn(wallet);
+
+        mockMvc.perform(
+                get("/api/v1/wallets/{wallet_UUID}", id))
+                .andExpect(status().isOk())
+                .andExpect( jsonPath("$.id").value(id.toString()))
+                .andExpect( jsonPath("$.amount").value(4000.00));
+    }
+
+
+    @Test
+    void getWallet_NotFound() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        Wallet wallet = new Wallet(id, BigDecimal.valueOf(4000.00));
+
+        when(service.getWallet(any())).thenThrow(new NotFoundException("Такого счета нет " + wallet.getId()));
+
+        mockMvc.perform(
+                 get("/api/v1/wallets/{wallet_UUID}", id))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertEquals("Такого счета нет " + wallet.getId(),
+                        result.getResolvedException().getMessage()));
     }
 }

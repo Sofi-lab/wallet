@@ -7,8 +7,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -39,10 +43,12 @@ public class ErrorHandler {
         return result;
     }
 
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, MethodParameter> handleNotValidException(MethodArgumentNotValidException exception) {
-        Map<String, MethodParameter> result = Map.of("Not valid request ",  exception.getParameter());
+    public Map<String, Set<String>> handleNotValidException(MethodArgumentNotValidException exception) {
+        Set<String> errors = exception.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toSet());
+        Map<String, Set<String>> result = Map.of("Not valid request", errors);
         log.warn(String.valueOf(result), exception, exception.getMessage());
         return result;
     }

@@ -12,13 +12,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ChangeWalletRequest {
 
-    @NotNull
+    @NotNull(message = "Field 'id' can not be null")
     private UUID id;
 
-    @NotNull
+    @NotNull(message = "Field 'amount' can not be null")
     private BigDecimal amount;
 
-    @NotNull
+    @NotNull(message = "Field 'operationType' can not be null")
     private OperationType operationType;
 
 }
