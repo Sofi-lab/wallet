@@ -1,5 +1,7 @@
 package com.bank.wallet.model;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -14,6 +16,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "wallets")
 @TypeDefs(@TypeDef(name = "uuid", typeClass = org.hibernate.type.UUIDCharType.class))
+@AllArgsConstructor
+@NoArgsConstructor
 public class Wallet {
     //@Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,12 +1,15 @@
 package com.bank.wallet.dto;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
+@AllArgsConstructor
 public class ChangeWalletRequest {
 
     @NotNull
@@ -17,4 +20,5 @@ public class ChangeWalletRequest {
 
     @NotNull
     private OperationType operationType;
+
 }

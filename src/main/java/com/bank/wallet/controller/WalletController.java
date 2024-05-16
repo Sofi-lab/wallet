@@ -20,10 +20,9 @@ public class WalletController {
     private final WalletService service;
 
     @PostMapping("/wallet")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Wallet> changeWallet(@RequestBody @Valid ChangeWalletRequest request){
-        service.changeAmount(request);
-        return ResponseEntity.ok().build();
+        Wallet wallet = service.changeAmount(request);
+        return ResponseEntity.ok(wallet);
     }
 
     @GetMapping("/wallets/{wallet_UUID}")
