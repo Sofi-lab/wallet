@@ -3,7 +3,6 @@ package com.bank.wallet.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,5 +19,4 @@ public class ChangeWalletRequest {
 
     @NotNull(message = "Field 'operationType' can not be null")
     private OperationType operationType;
-
 }

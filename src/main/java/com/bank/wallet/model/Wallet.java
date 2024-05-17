@@ -19,19 +19,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Wallet {
-    //@Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@Type("org.hibernate.type.UUIDCharType")
-    //@Column(name = "id", updatable = false, nullable = false)
-
-    //@Id
-    //@GeneratedValue(generator = "UUID")
-    //@GenericGenerator(
-      //      name = "UUID",
-        //    strategy = "org.hibernate.id.UUIDGenerator"
-    //)
-    //@Column(name = "id", updatable = false, nullable = false)
-    //private UUID id;
 
     @Id
     @GeneratedValue(generator = "UUID")
