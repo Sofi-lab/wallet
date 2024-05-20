@@ -9,6 +9,7 @@ import com.bank.wallet.model.Wallet;
 import com.bank.wallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class WalletServiceImpl implements WalletService {
     private final WalletRepository repository;
 
 
+    @Transactional
     public Wallet changeAmount(ChangeWalletRequest request) {
         Wallet wallet = repository.findByIdWithLock(request.getId()).orElseThrow(() ->
                 new NotFoundException("Такого счета нет " + request.getId()));
