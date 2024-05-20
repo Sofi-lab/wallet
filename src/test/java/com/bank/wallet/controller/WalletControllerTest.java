@@ -6,7 +6,7 @@ import com.bank.wallet.exception.NotFoundException;
 import com.bank.wallet.exception.TooBigAmount;
 import com.bank.wallet.exception.UnknownRequestException;
 import com.bank.wallet.model.Wallet;
-import com.bank.wallet.service.WalletService;
+import com.bank.wallet.service.WalletServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-@WebMvcTest({WalletController.class, WalletService.class})
+@WebMvcTest({WalletController.class, WalletServiceImpl.class})
 class WalletControllerTest {
 
     @Autowired
@@ -44,7 +44,7 @@ class WalletControllerTest {
     private ObjectMapper mapper;
 
     @MockBean
-    WalletService service;
+    WalletServiceImpl service;
 
 
     @Test
@@ -86,7 +86,8 @@ class WalletControllerTest {
 
     @Test
     void changeAmountWithNotFoundId() throws Exception {
-        ChangeWalletRequest walletRequest = new ChangeWalletRequest(UUID.randomUUID(), BigDecimal.valueOf(5000.00), OperationType.WITHDRAW);
+        ChangeWalletRequest walletRequest = new ChangeWalletRequest(UUID.randomUUID(), BigDecimal.valueOf(5000.00),
+                OperationType.WITHDRAW);
         when(service.changeAmount(any())).thenThrow(new NotFoundException("Такого счета нет " + walletRequest.getId()));
 
         mockMvc.perform(
@@ -94,7 +95,8 @@ class WalletControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(walletRequest)))
                 .andExpect(status().isNotFound())
-                .andExpect(result -> assertEquals("Такого счета нет " + walletRequest.getId(), result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("Такого счета нет " + walletRequest.getId(),
+                        result.getResolvedException().getMessage()));
     }
 
 
@@ -105,14 +107,16 @@ class WalletControllerTest {
         Wallet wallet = new Wallet(id, BigDecimal.valueOf(4000.00));
         ChangeWalletRequest walletRequest = new ChangeWalletRequest(id, BigDecimal.valueOf(50000.00), OperationType.WITHDRAW);
 
-        when(service.changeAmount(any())).thenThrow(new TooBigAmount("Недостаточно средств на счете, баланс: " + wallet.getAmount()));
+        when(service.changeAmount(any())).thenThrow(new TooBigAmount("Недостаточно средств на счете, баланс: " +
+                wallet.getAmount()));
 
         mockMvc.perform(
                 post("/api/v1/wallet")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(walletRequest)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(result -> assertEquals("Недостаточно средств на счете, баланс: " + wallet.getAmount(), result.getResolvedException().getMessage()));
+                .andExpect(result -> assertEquals("Недостаточно средств на счете, баланс: " +
+                        wallet.getAmount(), result.getResolvedException().getMessage()));
     }
 
 
@@ -121,7 +125,8 @@ class WalletControllerTest {
         UUID id = UUID.randomUUID();
         ChangeWalletRequest walletRequest = new ChangeWalletRequest(id, BigDecimal.valueOf(50000.00), null);
 
-        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" + walletRequest.getAmount()));
+        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" +
+                walletRequest.getAmount()));
 
         mockMvc.perform(
                 post("/api/v1/wallet")
@@ -136,7 +141,8 @@ class WalletControllerTest {
         UUID id = UUID.randomUUID();
         ChangeWalletRequest walletRequest = new ChangeWalletRequest(id, null, OperationType.WITHDRAW);
 
-        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" + walletRequest.getAmount()));
+        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" +
+                walletRequest.getAmount()));
 
         mockMvc.perform(
                 post("/api/v1/wallet")
@@ -148,9 +154,11 @@ class WalletControllerTest {
 
     @Test
     void changeAmountWithdrawUnknownRequest_IdNull() throws Exception {
-        ChangeWalletRequest walletRequest = new ChangeWalletRequest(null, BigDecimal.valueOf(60000.00), OperationType.WITHDRAW);
+        ChangeWalletRequest walletRequest = new ChangeWalletRequest(null, BigDecimal.valueOf(60000.00),
+                OperationType.WITHDRAW);
 
-        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" + walletRequest.getAmount()));
+        when(service.changeAmount(any())).thenThrow(new UnknownRequestException("Validation failed for argument" +
+                walletRequest.getAmount()));
 
         mockMvc.perform(
                 post("/api/v1/wallet")
