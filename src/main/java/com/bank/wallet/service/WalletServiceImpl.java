@@ -20,24 +20,24 @@ public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository repository;
 
+
     public Wallet changeAmount(ChangeWalletRequest request) {
-        Wallet wallet = repository.findById(request.getId()).orElseThrow(() ->
+        Wallet wallet = repository.findByIdWithLock(request.getId()).orElseThrow(() ->
                 new NotFoundException("Такого счета нет " + request.getId()));
         if (OperationType.DEPOSIT.equals(request.getOperationType())) {
             BigDecimal newAmount = wallet.getAmount().add(request.getAmount());
             wallet.setAmount(newAmount);
-            return repository.save(wallet);
         } else if (OperationType.WITHDRAW.equals(request.getOperationType())) {
             if (request.getAmount().compareTo(wallet.getAmount()) == 1) {
                 throw new TooBigAmount("Недостаточно средств на счете, баланс: " + wallet.getAmount());
             } else {
                 BigDecimal new_amount = wallet.getAmount().subtract(request.getAmount());
                 wallet.setAmount(new_amount);
-                return repository.save(wallet);
             }
         } else {
             throw new UnknownRequestException("Неизвестный тип операции " + request.getOperationType());
         }
+        return repository.save(wallet);
     }
 
 
